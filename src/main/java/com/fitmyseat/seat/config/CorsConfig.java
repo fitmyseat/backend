@@ -18,7 +18,8 @@ public class CorsConfig {
                 registry.addMapping("/**")
                         .allowedOrigins(
                                 "http://localhost:4200",
-                                "https://yourusername.github.io"
+                                "https://fitmyseat.github.io/ui/",
+                                "https://fitmyseat.github.io/**"
                         )
                         .allowedMethods("*")
                         .allowedHeaders("*");
