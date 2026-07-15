@@ -19,6 +19,7 @@ public class UserController {
 
     @GetMapping
     public List<User> getAllUsers() {
+    	System.out.println("Hello first log");
         return userRepository.findAll();
     }
 }
