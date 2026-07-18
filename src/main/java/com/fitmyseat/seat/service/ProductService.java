@@ -1,9 +1,12 @@
 package com.fitmyseat.seat.service;
 
 import com.fitmyseat.seat.entity.Product;
+import com.fitmyseat.seat.entity.Sales;
 import com.fitmyseat.seat.repository.ProductRepository;
+import com.fitmyseat.seat.repository.SalesRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -12,9 +15,11 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final SalesRepository salesRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, SalesRepository salesRepository) {
         this.productRepository = productRepository;
+        this.salesRepository = salesRepository;
     }
 
     public List<Product> getAllProducts() {
@@ -54,5 +59,33 @@ public class ProductService {
             return true;
         }
         return false;
+    }
+
+    public Product decrementQuantity(Long id) {
+        Optional<Product> optionalProduct = productRepository.findById(id);
+        if (optionalProduct.isPresent()) {
+            Product product = optionalProduct.get();
+            Integer currentQuantity = product.getQuantity();
+            if (currentQuantity != null && currentQuantity > 0) {
+                product.setQuantity(currentQuantity - 1);
+                Product updatedProduct = productRepository.save(product);
+
+                // Create sales record
+                Sales sales = new Sales();
+                sales.setVehicleName(product.getVehicleName());
+                sales.setModel(product.getModel());
+                sales.setColor(product.getColor());
+                sales.setStitch(product.getStitch());
+                sales.setQuantity(1);
+                sales.setUnitPrice(product.getPrice());
+                sales.setTotalPrice(product.getPrice());
+                sales.setProductId(product.getId());
+                sales.setPartyName("Walk-in Customer"); // Default party name
+                salesRepository.save(sales);
+
+                return updatedProduct;
+            }
+        }
+        return null;
     }
 }
